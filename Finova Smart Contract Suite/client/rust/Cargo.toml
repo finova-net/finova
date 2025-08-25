@@ -1,0 +1,137 @@
+# client/rust/Cargo.toml
+
+[package]
+name = "finova-sdk"
+version = "1.0.0"
+edition = "2021"
+authors = ["Finova Network Team <dev@finova.network>"]
+description = "Official Rust SDK for Finova Network - Social-Fi mining platform on Solana"
+documentation = "https://docs.finova.network/sdk/rust"
+repository = "https://github.com/finova-network/finova-contracts"
+homepage = "https://finova.network"
+license = "MIT"
+keywords = ["solana", "blockchain", "social-fi", "mining", "web3"]
+categories = ["api-bindings", "cryptocurrency", "web-programming"]
+readme = "README.md"
+exclude = [
+    "target/",
+    "tests/",
+    "examples/target/",
+]
+
+[lib]
+name = "finova_sdk"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Solana Core Dependencies
+solana-client = "1.16"
+solana-sdk = "1.16"
+solana-program = "1.16"
+solana-account-decoder = "1.16"
+
+# Anchor Framework
+anchor-client = "0.28"
+anchor-lang = "0.28"
+anchor-spl = "0.28"
+
+# SPL Token Support
+spl-token = "3.5"
+spl-associated-token-account = "1.1"
+
+# Async Runtime
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+borsh = "0.10"
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Crypto & Math
+bs58 = "0.4"
+sha2 = "0.10"
+ed25519-dalek = "1.0"
+
+# HTTP Client
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+url = "2.0"
+
+# Development Dependencies
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.11"
+proptest = "1.0"
+criterion = "0.5"
+
+# Example Dependencies (for documentation)
+clap = { version = "4.0", features = ["derive"] }
+colored = "2.0"
+
+[features]
+default = ["client"]
+client = []
+devnet = []
+testnet = []
+mainnet = []
+
+# Performance optimizations
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+# Benchmarking profile
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+
+[[example]]
+name = "basic_mining"
+path = "examples/basic_mining.rs"
+
+[[example]]
+name = "nft_marketplace"
+path = "examples/nft_marketplace.rs"
+
+[[example]]
+name = "staking_rewards"
+path = "examples/staking_rewards.rs"
+
+[[example]]
+name = "referral_system"
+path = "examples/referral_system.rs"
+
+[[example]]
+name = "guild_management"
+path = "examples/guild_management.rs"
+
+[[bench]]
+name = "transaction_benchmarks"
+harness = false
+
+[[bench]]
+name = "calculation_benchmarks"
+harness = false
