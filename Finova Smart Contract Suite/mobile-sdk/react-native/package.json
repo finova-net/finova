@@ -1,0 +1,269 @@
+{
+  "name": "@finova-network/react-native-sdk",
+  "version": "1.0.0",
+  "description": "Finova Network React Native SDK - Engage & Earn Social-Fi Super App SDK with XP, RP, and $FIN mining integration",
+  "main": "lib/commonjs/index",
+  "module": "lib/module/index",
+  "types": "lib/typescript/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "cpp",
+    "*.podspec",
+    "!lib/typescript/example",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint:fix": "eslint \"**/*.{js,ts,tsx}\" --fix",
+    "prepack": "bob build",
+    "release": "release-it",
+    "example": "yarn --cwd example",
+    "bootstrap": "yarn example && yarn install && yarn example pods",
+    "clean": "del-cli android/build example/android/build example/ios/build",
+    "prepare": "bob build"
+  },
+  "keywords": [
+    "finova",
+    "social-fi",
+    "blockchain",
+    "solana",
+    "mining",
+    "xp-system",
+    "referral-points",
+    "nft",
+    "defi",
+    "react-native",
+    "ios",
+    "android",
+    "web3",
+    "crypto",
+    "earn-to-engage",
+    "super-app"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finova-network/finova-contracts.git",
+    "directory": "mobile-sdk/react-native"
+  },
+  "author": {
+    "name": "Finova Network Team",
+    "email": "dev@finova.network",
+    "url": "https://finova.network"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/finova-network/finova-contracts/issues"
+  },
+  "homepage": "https://finova.network",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.87.6",
+    "@solana/spl-token": "^0.3.8",
+    "@coral-xyz/anchor": "^0.28.0",
+    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@react-native-keychain/react-native-keychain": "^8.1.3",
+    "react-native-device-info": "^10.11.0",
+    "react-native-biometrics": "^3.0.1",
+    "react-native-encrypted-storage": "^4.0.3",
+    "react-native-background-job": "^2.3.1",
+    "react-native-push-notification": "^8.1.1",
+    "@react-native-community/netinfo": "^11.1.0",
+    "react-native-share": "^9.4.1",
+    "react-native-image-picker": "^7.0.3",
+    "react-native-permissions": "^4.1.4",
+    "react-native-wallet-connect": "^1.8.0",
+    "react-native-qr-generator": "^1.4.0",
+    "react-native-qrcode-scanner": "^1.5.5",
+    "crypto-js": "^4.2.0",
+    "buffer": "^6.0.3",
+    "bs58": "^5.0.0",
+    "bignumber.js": "^9.1.2",
+    "uuid": "^9.0.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "axios": "^1.6.2",
+    "socket.io-client": "^4.7.4",
+    "react-native-flipper": "^0.212.0"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^17.0.2",
+    "@evilmartians/lefthook": "^1.2.2",
+    "@react-native-community/eslint-config": "^3.0.2",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "@types/crypto-js": "^4.2.1",
+    "@types/jest": "^28.1.2",
+    "@types/lodash": "^4.14.202",
+    "@types/react": "~17.0.21",
+    "@types/react-native": "0.70.0",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "commitlint": "^17.0.2",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.19.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^28.1.1",
+    "pod-install": "^0.1.0",
+    "prettier": "^2.0.5",
+    "react": "18.0.0",
+    "react-native": "0.69.6",
+    "react-native-builder-bob": "^0.20.0",
+    "release-it": "^15.0.0",
+    "typescript": "^4.5.2"
+  },
+  "resolutions": {
+    "@types/react": "17.0.21"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "packageManager": "^yarn@1.22.15",
+  "jest": {
+    "preset": "react-native",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example/node_modules",
+      "<rootDir>/lib/"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular"
+      }
+    }
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@react-native-community",
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "quoteProps": "consistent",
+          "singleQuote": true,
+          "tabWidth": 2,
+          "trailingComma": "es5",
+          "useTabs": false
+        }
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  },
+  "codegenConfig": {
+    "name": "RNFinovaSDKSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/finova-network"
+  },
+  "config": {
+    "finova": {
+      "apiEndpoint": "https://api.finova.network",
+      "wsEndpoint": "wss://ws.finova.network",
+      "solanaRpc": "https://api.mainnet-beta.solana.com",
+      "ipfsGateway": "https://ipfs.finova.network",
+      "defaultNetworks": [
+        "mainnet-beta",
+        "devnet",
+        "testnet"
+      ],
+      "supportedPlatforms": [
+        "instagram",
+        "tiktok",
+        "youtube",
+        "facebook",
+        "twitter"
+      ],
+      "features": {
+        "mining": true,
+        "xpSystem": true,
+        "referralPoints": true,
+        "nftMarketplace": true,
+        "defiIntegration": true,
+        "socialIntegration": true,
+        "biometricAuth": true,
+        "offlineMode": true,
+        "backgroundMining": true,
+        "pushNotifications": true
+      }
+    }
+  },
+  "react-native": {
+    "crypto": "react-native-crypto",
+    "stream": "stream-browserify",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "vm": "vm-browserify"
+  }
+}

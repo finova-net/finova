@@ -1,0 +1,148 @@
+/*
+ * Finova Network - Android SDK Example
+ * Settings Configuration for Multi-Module Enterprise Project
+ * 
+ * Project: finova-net/mobile-sdk/android/example/
+ * Version: 1.0.0
+ * Build System: Gradle 8.4+ with Kotlin DSL Support
+ */
+
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    
+    resolutionStrategy {
+        eachPlugin {
+            when (requested.id.id) {
+                "com.android.application" -> useModule("com.android.tools.build:gradle:${requested.version}")
+                "com.android.library" -> useModule("com.android.tools.build:gradle:${requested.version}")
+                "org.jetbrains.kotlin.android" -> useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+                "dagger.hilt.android.plugin" -> useModule("com.google.dagger:hilt-android-gradle-plugin:${requested.version}")
+                "androidx.navigation.safeargs.kotlin" -> useModule("androidx.navigation:navigation-safe-args-gradle-plugin:${requested.version}")
+                "kotlin-parcelize" -> useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+                "kotlin-kapt" -> useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io") // For Solana mobile libraries
+        maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap") // For Ktor networking
+        maven("https://repo.spring.io/milestone") // For additional dependencies
+        maven("https://oss.sonatype.org/content/repositories/snapshots") // For snapshot builds
+        
+        // Finova private repository (when available)
+        maven("https://maven.finova.network/releases") {
+            credentials {
+                username = providers.gradleProperty("finova.maven.username").orNull
+                password = providers.gradleProperty("finova.maven.password").orNull
+            }
+        }
+    }
+}
+
+// Root project name
+rootProject.name = "FinovaExampleApp"
+
+// Include main application module
+include(":app")
+
+// Include Finova SDK module (local development)
+include(":finova-sdk")
+project(":finova-sdk").projectDir = file("../finova-sdk")
+
+// Feature modules for modular architecture
+include(":feature:auth")
+include(":feature:mining")
+include(":feature:xp")
+include(":feature:referral")
+include(":feature:nft")
+include(":feature:social")
+include(":feature:wallet")
+include(":feature:guild")
+
+// Core modules
+include(":core:network")
+include(":core:database")
+include(":core:common")
+include(":core:ui")
+include(":core:security")
+include(":core:blockchain")
+
+// Data modules
+include(":data:user")
+include(":data:mining")
+include(":data:social")
+include(":data:nft")
+include(":data:referral")
+
+// Testing modules
+include(":testing:common")
+include(":testing:fixtures")
+
+// Set project directories for organized structure
+project(":feature:auth").projectDir = file("features/auth")
+project(":feature:mining").projectDir = file("features/mining")
+project(":feature:xp").projectDir = file("features/xp")
+project(":feature:referral").projectDir = file("features/referral")
+project(":feature:nft").projectDir = file("features/nft")
+project(":feature:social").projectDir = file("features/social")
+project(":feature:wallet").projectDir = file("features/wallet")
+project(":feature:guild").projectDir = file("features/guild")
+
+project(":core:network").projectDir = file("core/network")
+project(":core:database").projectDir = file("core/database")
+project(":core:common").projectDir = file("core/common")
+project(":core:ui").projectDir = file("core/ui")
+project(":core:security").projectDir = file("core/security")
+project(":core:blockchain").projectDir = file("core/blockchain")
+
+project(":data:user").projectDir = file("data/user")
+project(":data:mining").projectDir = file("data/mining")
+project(":data:social").projectDir = file("data/social")
+project(":data:nft").projectDir = file("data/nft")
+project(":data:referral").projectDir = file("data/referral")
+
+project(":testing:common").projectDir = file("testing/common")
+project(":testing:fixtures").projectDir = file("testing/fixtures")
+
+// Enable configuration cache for faster builds
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+
+// Enable type-safe project accessors
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+// Gradle Enterprise configuration (if available)
+if (System.getenv("CI") == "true") {
+    gradle.settingsEvaluated {
+        if (plugins.hasPlugin("com.gradle.enterprise")) {
+            extensions.configure<com.gradle.enterprise.gradleplugin.GradleEnterpriseExtension> {
+                buildScan {
+                    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+                    termsOfServiceAgree = "yes"
+                    publishAlways()
+                    
+                    tag(if (System.getenv("CI") == "true") "CI" else "Local")
+                    
+                    buildScanPublished {
+                        println("Build scan published: ${buildScan.get().buildScanUri}")
+                    }
+                }
+            }
+        }
+    }
+}
