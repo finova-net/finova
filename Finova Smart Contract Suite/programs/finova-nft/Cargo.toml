@@ -1,0 +1,390 @@
+// programs/finova-nft/Cargo.toml
+
+[package]
+name = "finova-nft"
+version = "1.0.0"
+description = "Finova Network NFT Program - Special Cards, Profile Badges & Marketplace"
+edition = "2021"
+license = "MIT"
+authors = ["Finova Network Team <dev@finova.network>"]
+repository = "https://github.com/finova-network/finova-contracts"
+homepage = "https://finova.network"
+documentation = "https://docs.finova.network"
+keywords = ["solana", "nft", "web3", "social-fi", "blockchain"]
+categories = ["cryptography::cryptocurrencies", "web-programming", "games"]
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "finova_nft"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+mainnet = []
+devnet = []
+localnet = []
+testing = ["anchor-lang/testing"]
+
+[dependencies]
+# Core Anchor Framework
+anchor-lang = { version = "0.30.1", features = ["init-if-needed", "derive"] }
+anchor-spl = { version = "0.30.1", features = ["metadata"] }
+
+# Solana Core Libraries
+solana-program = "~1.18.0"
+solana-sdk = "~1.18.0"
+solana-client = "~1.18.0"
+solana-account-decoder = "~1.18.0"
+
+# SPL Token Libraries
+spl-token = { version = "4.0.0", features = ["no-entrypoint"] }
+spl-token-2022 = { version = "0.9.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "2.3.0", features = ["no-entrypoint"] }
+
+# Metaplex Libraries for NFT Support
+mpl-token-metadata = { version = "4.1.2", features = ["no-entrypoint"] }
+mpl-bubblegum = { version = "1.3.2", features = ["no-entrypoint"] }
+mpl-core = { version = "0.7.2", features = ["no-entrypoint"] }
+
+# Serialization & Data Handling
+borsh = { version = "0.10.3", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
+serde_json = "1.0.113"
+arrayref = "0.3.7"
+bytemuck = { version = "1.14.1", features = ["derive"] }
+
+# Cryptography & Security
+sha2 = { version = "0.10.8", features = ["compress"] }
+sha3 = "0.10.8"
+blake3 = "1.5.0"
+curve25519-dalek = { version = "4.1.1", features = ["serde"] }
+ed25519-dalek = { version = "2.1.0", features = ["serde"] }
+
+# Mathematical Operations
+num-traits = "0.2.17"
+num-bigint = "0.4.4"
+bigdecimal = { version = "0.4.2", features = ["serde"] }
+rust_decimal = { version = "1.34.3", features = ["serde-with-str"] }
+
+# Time & Date Handling
+chrono = { version = "0.4.34", features = ["serde"] }
+
+# Utility Libraries
+thiserror = "1.0.56"
+anyhow = "1.0.79"
+once_cell = "1.19.0"
+lazy_static = "1.4.0"
+
+# CPI Dependencies (Other Finova Programs)
+finova-core = { path = "../finova-core", features = ["cpi"] }
+finova-token = { path = "../finova-token", features = ["cpi"] }
+
+# Development Dependencies
+[dev-dependencies]
+# Testing Framework
+tokio = { version = "1.35.1", features = ["full"] }
+tokio-test = "0.4.3"
+assert_matches = "1.5.0"
+pretty_assertions = "1.4.0"
+
+# Solana Testing
+solana-program-test = "~1.18.0"
+solana-test-validator = "~1.18.0"
+solana-validator = "~1.18.0"
+
+# Anchor Testing
+anchor-client = { version = "0.30.1", features = ["debug"] }
+
+# Property-based Testing
+proptest = "1.4.0"
+arbitrary = { version = "1.3.2", features = ["derive"] }
+
+# Benchmarking
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+# Mocking & Test Utilities
+mockall = "0.12.1"
+test-case = "3.3.1"
+rstest = "0.18.2"
+
+# Random Generation for Testing
+rand = "0.8.5"
+rand_chacha = "0.3.1"
+fake = { version = "2.9.2", features = ["derive", "chrono"] }
+
+# JSON Testing
+serde_json = "1.0.113"
+json-patch = "1.2.0"
+
+# Performance Profiling
+pprof = { version = "0.13.0", features = ["criterion", "flamegraph"] }
+
+[build-dependencies]
+# Build-time Dependencies
+anchor-gen = "0.30.1"
+
+# Code Generation
+proc-macro2 = "1.0.78"
+quote = "1.0.35"
+syn = { version = "2.0.48", features = ["full"] }
+
+# Environment Detection
+vergen = { version = "8.3.1", features = ["build", "git", "gitcl"] }
+
+[[example]]
+name = "create_special_card"
+path = "examples/create_special_card.rs"
+
+[[example]]
+name = "mint_profile_badge"
+path = "examples/mint_profile_badge.rs"
+
+[[example]]
+name = "marketplace_operations"
+path = "examples/marketplace_operations.rs"
+
+[[example]]
+name = "card_usage_simulation"
+path = "examples/card_usage_simulation.rs"
+
+[[bench]]
+name = "nft_operations"
+harness = false
+
+[[bench]]
+name = "marketplace_performance"
+harness = false
+
+[[bench]]
+name = "metadata_processing"
+harness = false
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+opt-level = 3
+
+[profile.release.build-override]
+opt-level = 3
+codegen-units = 1
+
+[profile.dev]
+debug = true
+debug-assertions = true
+overflow-checks = true
+opt-level = 0
+panic = "unwind"
+incremental = true
+
+[profile.test]
+debug = true
+debug-assertions = true
+overflow-checks = true
+opt-level = 0
+panic = "unwind"
+
+[profile.bench]
+debug = false
+debug-assertions = false
+overflow-checks = false
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+# Custom profiles for different deployment environments
+[profile.mainnet]
+inherits = "release"
+debug = false
+debug-assertions = false
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.devnet]
+inherits = "release"
+debug = true
+debug-assertions = true
+overflow-checks = true
+opt-level = 2
+strip = "none"
+
+[profile.localnet]
+inherits = "dev"
+debug = true
+debug-assertions = true
+overflow-checks = true
+opt-level = 1
+
+# Workspace configuration
+[workspace]
+resolver = "2"
+
+# Linting configuration
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+missing_copy_implementations = "warn"
+trivial_casts = "warn"
+trivial_numeric_casts = "warn"
+unused_import_braces = "warn"
+unused_qualifications = "warn"
+
+[lints.clippy]
+# Correctness lints
+correctness = "deny"
+suspicious = "deny"
+complexity = "warn"
+perf = "warn"
+style = "warn"
+pedantic = "warn"
+nursery = "warn"
+
+# Specific clippy lints
+missing_docs_in_private_items = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+similar_names = "allow"
+too_many_lines = "allow"
+type_complexity = "allow"
+
+# Security-focused lints
+integer_arithmetic = "warn"
+panic = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+
+# NFT-specific configurations
+[package.metadata.finova-nft]
+# Program Configuration
+program_id = "FNFTxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+cluster = "devnet"
+
+# NFT Collection Settings
+max_collections = 1000
+max_nfts_per_collection = 10000
+default_royalty_percent = 5.0
+creator_fee_percent = 2.5
+
+# Special Card Configuration
+card_types = [
+    "mining_boost",
+    "xp_accelerator", 
+    "referral_power",
+    "profile_badge",
+    "achievement_nft"
+]
+
+# Card Rarity Levels
+rarity_levels = [
+    { name = "Common", weight = 60, multiplier = 1.0 },
+    { name = "Uncommon", weight = 25, multiplier = 1.5 },
+    { name = "Rare", weight = 10, multiplier = 2.0 },
+    { name = "Epic", weight = 4, multiplier = 3.0 },
+    { name = "Legendary", weight = 1, multiplier = 5.0 }
+]
+
+# Marketplace Configuration
+marketplace_fee_percent = 2.5
+minimum_listing_price = 1000000  # 0.001 SOL in lamports
+maximum_listing_duration_days = 30
+auction_extension_minutes = 10
+
+# Card Effect Duration (in seconds)
+card_effects = [
+    { name = "double_mining", duration = 86400 },      # 24 hours
+    { name = "triple_mining", duration = 43200 },      # 12 hours  
+    { name = "mining_frenzy", duration = 14400 },      # 4 hours
+    { name = "eternal_miner", duration = 2592000 },    # 30 days
+    { name = "xp_double", duration = 86400 },          # 24 hours
+    { name = "streak_saver", duration = 604800 },      # 7 days
+    { name = "level_rush", duration = 0 },             # Instant
+    { name = "xp_magnet", duration = 172800 }          # 48 hours
+]
+
+# Integration Settings
+[package.metadata.finova-nft.integrations]
+finova_core_program = "FCORxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+finova_token_program = "FTOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+metaplex_program = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+associated_token_program = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+
+# Security Configuration
+[package.metadata.finova-nft.security]
+# Anti-bot measures
+max_mints_per_user_per_day = 10
+max_transfers_per_user_per_hour = 20
+min_account_age_hours = 24
+require_kyc_for_trading = true
+
+# Rate limiting
+api_requests_per_minute = 60
+transaction_cooldown_seconds = 5
+
+# Fraud detection
+monitor_suspicious_patterns = true
+auto_freeze_suspicious_accounts = false
+manual_review_threshold = 10000000  # 0.01 SOL
+
+# Backup and Recovery
+[package.metadata.finova-nft.backup]
+metadata_backup_enabled = true
+backup_interval_hours = 6
+max_backup_files = 168  # 1 week of 6-hourly backups
+backup_compression = "gzip"
+
+# Monitoring and Analytics
+[package.metadata.finova-nft.monitoring]
+enable_metrics = true
+metrics_port = 9091
+health_check_port = 8080
+log_level = "info"
+trace_sampling_rate = 0.1
+
+# Performance tuning
+[package.metadata.finova-nft.performance]
+cache_metadata = true
+cache_ttl_seconds = 3600
+batch_size = 100
+max_concurrent_operations = 50
+connection_pool_size = 10
+
+# Feature flags for gradual rollout
+[package.metadata.finova-nft.features]
+marketplace_enabled = true
+auctions_enabled = true
+royalties_enabled = true
+bulk_operations_enabled = true
+cross_chain_enabled = false
+ai_generated_metadata = false
+
+# Documentation and Help
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# Publication settings
+[package.metadata.release]
+sign-commit = true
+sign-tag = true
+pre-release-replacements = [
+    { file = "README.md", search = "finova-nft = \"[^\"]*\"", replace = "finova-nft = \"{{version}}\"" },
+    { file = "CHANGELOG.md", search = "## Unreleased", replace = "## Unreleased\n\n## [{{version}}] - {{date}}" }
+]
+
+# Cargo deny configuration for security
+[package.metadata.cargo-deny]
+advisories = { db-path = "~/.cargo/advisory-db", db-urls = ["https://github.com/rustsec/advisory-db"] }
+licenses = { allow = ["MIT", "Apache-2.0", "BSD-3-Clause"] }
+bans = { multiple-versions = "warn", wildcards = "allow" }
+sources = { unknown-registry = "warn", unknown-git = "warn" }
