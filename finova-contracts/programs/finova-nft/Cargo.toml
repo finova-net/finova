@@ -1,0 +1,20 @@
+[package]
+name = "finova-nft"
+version = "0.1.0"
+description = "Finova NFT Program"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "finova_nft"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.31.1"
+anchor-spl = "0.31.1"
+mpl-token-metadata = "4.1.2"
