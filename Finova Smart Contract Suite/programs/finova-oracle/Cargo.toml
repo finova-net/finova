@@ -1,0 +1,271 @@
+// programs/finova-oracle/Cargo.toml
+
+[package]
+name = "finova-oracle"
+version = "1.0.0"
+description = "Finova Network Oracle Program - Enterprise-grade price feeds and data aggregation for the Finova ecosystem"
+authors = ["Finova Network Team <dev@finova.network>"]
+repository = "https://github.com/finova-network/finova-contracts"
+license = "MIT"
+edition = "2021"
+keywords = ["solana", "anchor", "oracle", "defi", "price-feeds"]
+categories = ["cryptography::cryptocurrencies", "web-programming"]
+readme = "README.md"
+homepage = "https://finova.network"
+documentation = "https://docs.finova.network/smart-contracts/oracle"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "finova_oracle"
+
+[features]
+default = []
+# Enable additional security features for mainnet deployment
+mainnet = ["security-hardened"]
+# Enhanced security with additional cryptographic verification
+security-hardened = []
+# Testing features for development and CI/CD
+test-features = ["anchor-lang/test"]
+# Enable comprehensive logging for debugging
+debug-logging = ["log", "env_logger"]
+# CPI (Cross-Program Invocation) optimizations
+cpi-optimized = []
+# Advanced mathematical operations for complex price calculations
+advanced-math = ["rust_decimal", "statrs"]
+
+[dependencies]
+# Core Anchor framework for Solana program development
+anchor-lang = { version = "0.28.0", features = ["init-if-needed"] }
+anchor-spl = "0.28.0"
+
+# Solana program dependencies
+solana-program = "~1.16.0"
+spl-token = { version = "4.0.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "2.0.0", features = ["no-entrypoint"] }
+
+# Cryptographic and security dependencies
+sha2 = { version = "0.10.7", features = ["oid"] }
+sha3 = "0.10.8"
+blake3 = "1.4.1"
+ed25519-dalek = { version = "2.0.0", features = ["rand_core"] }
+curve25519-dalek = "4.1.0"
+
+# Serialization and data handling
+borsh = { version = "0.10.3", features = ["derive"] }
+serde = { version = "1.0.183", features = ["derive"] }
+serde_json = "1.0.104"
+bincode = "1.3.3"
+
+# Mathematical operations for price calculations
+num-traits = "0.2.16"
+num-bigint = { version = "0.4.4", features = ["serde"] }
+rust_decimal = { version = "1.31.0", features = ["serde-with-str"], optional = true }
+fixed = { version = "1.24.0", features = ["serde"] }
+statrs = { version = "0.16.0", optional = true }
+
+# Time and date handling for price feed timestamps
+chrono = { version = "0.4.26", features = ["serde"] }
+
+# Error handling and utilities
+thiserror = "1.0.44"
+anyhow = "1.0.72"
+
+# Logging (optional for debugging)
+log = { version = "0.4.19", optional = true }
+env_logger = { version = "0.10.0", optional = true }
+
+# Development and testing dependencies
+[dev-dependencies]
+# Testing framework
+tokio = { version = "1.29.1", features = ["full"] }
+tokio-test = "0.4.3"
+
+# Solana testing utilities
+solana-program-test = "~1.16.0"
+solana-sdk = "~1.16.0"
+solana-client = "~1.16.0"
+solana-logger = "~1.16.0"
+
+# Anchor testing
+anchor-client = { version = "0.28.0", features = ["debug"] }
+
+# Property-based testing
+proptest = "1.2.0"
+proptest-derive = "0.4.0"
+
+# Benchmarking
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+# Mocking and test utilities
+mockall = "0.11.4"
+serial_test = "3.0.0"
+
+# Fuzzing dependencies for security testing
+arbitrary = { version = "1.3.0", features = ["derive"] }
+honggfuzz = "0.5.56"
+
+# Additional test data generation
+fake = { version = "2.7.0", features = ["derive", "chrono"] }
+rand = "0.8.5"
+rand_chacha = "0.3.1"
+
+[build-dependencies]
+# Anchor build utilities
+anchor-syn = "0.28.0"
+
+# Code generation
+proc-macro2 = "1.0.66"
+quote = "1.0.32"
+syn = { version = "2.0.27", features = ["full"] }
+
+[[bench]]
+name = "price_aggregation"
+harness = false
+required-features = ["advanced-math"]
+
+[[bench]]
+name = "oracle_performance"
+harness = false
+
+[[bench]]
+name = "cryptographic_operations"
+harness = false
+required-features = ["security-hardened"]
+
+[profile.release]
+# Optimize for performance and security in production
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = "abort"
+incremental = false
+overflow-checks = true
+
+[profile.dev]
+# Development profile with debugging enabled
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+incremental = true
+
+[profile.test]
+# Testing profile with optimizations for faster test execution
+opt-level = 1
+debug = true
+debug-assertions = true
+overflow-checks = true
+
+[profile.bench]
+# Benchmark profile for accurate performance measurements
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+incremental = false
+overflow-checks = false
+
+# Custom profile for security-focused builds
+[profile.security]
+inherits = "release"
+opt-level = "s"  # Optimize for size to reduce attack surface
+strip = "symbols"
+panic = "abort"
+overflow-checks = true
+
+[package.metadata]
+# Solana program metadata
+solana-version = "~1.16.0"
+anchor-version = "0.28.0"
+
+[package.metadata.docs.rs]
+# Documentation configuration for docs.rs
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# Security and audit information
+[package.metadata.audit]
+# Known vulnerabilities to ignore (with justification)
+ignore = []
+
+# Dependency sources verification
+[package.metadata.cargo-vet]
+# Verification requirements for dependencies
+criteria = "safe-to-deploy"
+
+# Workspace configuration compatibility
+[workspace]
+# This ensures compatibility with the main workspace Cargo.toml
+
+# Platform-specific dependencies
+[target.'cfg(target_os = "solana")'.dependencies]
+# Solana-specific optimizations can be added here
+
+# Cross-compilation support
+[target.'cfg(not(target_arch = "bpf"))'.dev-dependencies]
+# Additional dev dependencies for non-BPF targets (testing, etc.)
+tokio-tungstenite = "0.20.0"  # For WebSocket testing
+reqwest = { version = "0.11.18", features = ["json"] }  # For HTTP API testing
+
+# Compiler settings for optimal BPF compilation
+[package.metadata.solana]
+# BPF-specific compiler flags
+bpf-out-dir = "target/deploy"
+# Additional BPF linker arguments for optimization
+bpf-linker-args = ["-z", "noexecstack"]
+
+# Code coverage configuration
+[package.metadata.coverage]
+# Exclude test-only code from coverage reports
+exclude = [
+    "tests/*",
+    "benches/*",
+    "examples/*"
+]
+
+# License and compliance
+[package.metadata.license]
+# SPDX license identifier
+spdx = "MIT"
+# Copyright notice
+copyright = "2025 Finova Network Team"
+
+# Security contact information
+[package.metadata.security]
+contact = "security@finova.network"
+# Security policy URL
+policy = "https://github.com/finova-network/finova-contracts/blob/main/SECURITY.md"
+
+# Changelog and versioning
+[package.metadata.release]
+# Automated release configuration
+sign-commit = true
+sign-tag = true
+push = true
+publish = true
+# Pre-release checks
+pre-release-commitish = "main"
+# Post-release hooks
+post-release-hook = ["./scripts/post-release.sh"]
+
+# Integration with external tools
+[package.metadata.finova]
+# Finova-specific metadata
+program-id = "FiNovAOr1c1ePr1ceFeedAggregat0rPr0gramID123456"  # Placeholder - will be replaced with actual program ID
+network = ["devnet", "testnet", "mainnet-beta"]
+# Oracle-specific configuration
+max-price-feeds = 1000
+aggregation-methods = ["weighted-average", "median", "vwap"]
+# Supported asset types
+supported-assets = ["crypto", "forex", "commodities", "indices"]
+# Update frequency limits (in seconds)
+min-update-interval = 1
+max-staleness = 300  # 5 minutes
+# Quality thresholds
+min-confidence = 80  # 80% confidence minimum
+max-deviation = 5    # 5% maximum price deviation threshold
