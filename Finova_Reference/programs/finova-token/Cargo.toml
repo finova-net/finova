@@ -1,0 +1,334 @@
+// programs/finova-token/Cargo.toml
+
+[package]
+name = "finova-token"
+version = "1.0.0"
+description = "Finova Network Token Management Program - Handles $FIN, $sFIN, $USDfin, and $sUSDfin tokens with advanced staking and rewards"
+edition = "2021"
+license = "MIT"
+authors = ["Finova Network Team <dev@finovanetwork.com>"]
+repository = "https://github.com/finova-network/finova-contracts"
+homepage = "https://finovanetwork.com"
+documentation = "https://docs.finovanetwork.com"
+keywords = ["solana", "blockchain", "defi", "token", "staking"]
+categories = ["cryptography::cryptocurrencies", "web-programming"]
+readme = "README.md"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "finova_token"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+test-bpf = []
+devnet = []
+testnet = []
+mainnet = []
+
+[dependencies]
+# Anchor Framework - Core blockchain development framework
+anchor-lang = { version = "0.28.0", features = ["init-if-needed", "derive"] }
+anchor-spl = { version = "0.28.0", features = ["default"] }
+
+# Solana Program Library
+spl-token = { version = "3.5.0", features = ["no-entrypoint"] }
+spl-token-2022 = { version = "0.6.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "1.1.3", features = ["no-entrypoint"] }
+
+# Mathematical operations and precision
+mpl-token-metadata = { version = "1.13.2", features = ["no-entrypoint"] }
+uint = { version = "0.9.5", default-features = false }
+num-traits = { version = "0.2.15", default-features = false }
+num-bigint = { version = "0.4.3", default-features = false }
+
+# Serialization and deserialization
+borsh = { version = "0.10.3", default-features = false }
+bytemuck = { version = "1.13.1", features = ["derive", "min_const_generics"] }
+
+# Cryptographic operations
+solana-program = "1.16.0"
+solana-security-txt = "1.1.1"
+
+# Time and date handling
+chrono = { version = "0.4.26", default-features = false, features = ["serde"] }
+
+# Error handling and logging
+thiserror = "1.0.44"
+log = "0.4.19"
+
+# Utilities
+arrayref = "0.3.7"
+static_assertions = "1.1.0"
+
+[dev-dependencies]
+# Testing framework
+solana-program-test = "1.16.0"
+solana-sdk = "1.16.0"
+tokio = { version = "1.29.1", features = ["macros", "rt-multi-thread"] }
+
+# Testing utilities
+assert_matches = "1.5.0"
+proptest = "1.2.0"
+arbitrary = { version = "1.3.0", features = ["derive"] }
+
+# Benchmarking
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+# Mock and testing helpers
+mockall = "0.11.4"
+serial_test = "2.0.0"
+
+[build-dependencies]
+# Build script dependencies
+anchor-lang-idl = "0.1.1"
+
+[[bench]]
+name = "token_operations"
+harness = false
+required-features = ["test-bpf"]
+
+[[bench]]
+name = "staking_rewards"
+harness = false
+required-features = ["test-bpf"]
+
+[[bench]]
+name = "mathematical_operations"
+harness = false
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+strip = true
+panic = "abort"
+
+[profile.release.build-override]
+opt-level = 3
+codegen-units = 1
+
+[profile.dev]
+debug = true
+opt-level = 0
+overflow-checks = true
+debug-assertions = true
+panic = "unwind"
+
+[profile.test]
+debug = true
+opt-level = 0
+overflow-checks = true
+debug-assertions = true
+
+# Custom profile for benchmarking
+[profile.bench]
+debug = false
+opt-level = 3
+overflow-checks = false
+debug-assertions = false
+lto = "fat"
+codegen-units = 1
+
+# Configuration for specific target architectures
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2.87"
+js-sys = "0.3.64"
+web-sys = "0.3.64"
+
+# Solana BPF target specific configurations
+[target.'cfg(target_os = "solana")'.dependencies]
+solana-program = "1.16.0"
+
+# Security configuration
+[package.metadata.solana-security-txt]
+name = "Finova Token Program"
+project-url = "https://finovanetwork.com"
+contacts = "email:security@finovanetwork.com,discord:finova-security"
+policy = "https://github.com/finova-network/finova-contracts/blob/main/SECURITY.md"
+preferred-languages = "en,id"
+source-code = "https://github.com/finova-network/finova-contracts"
+source-revision = "main"
+source-release = "v1.0.0"
+auditors = "Trail of Bits, Kudelski Security, Halborn"
+acknowledgements = "Thanks to the Solana community and Anchor framework contributors"
+
+# Documentation metadata
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown"]
+
+# Workspace configuration (if part of a workspace)
+[workspace]
+members = [
+    ".",
+    "../finova-core",
+    "../finova-nft",
+    "../finova-defi",
+    "../finova-bridge",
+    "../finova-oracle"
+]
+resolver = "2"
+
+[workspace.dependencies]
+# Shared dependencies across all programs
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+solana-program = "1.16.0"
+spl-token = "3.5.0"
+borsh = "0.10.3"
+thiserror = "1.0.44"
+
+# Development and testing shared dependencies
+solana-program-test = "1.16.0"
+solana-sdk = "1.16.0"
+tokio = "1.29.1"
+
+# Patch section for version consistency
+[patch.crates-io]
+# Ensure consistent versions across all dependencies
+solana-program = { version = "1.16.0" }
+solana-sdk = { version = "1.16.0" }
+anchor-lang = { version = "0.28.0" }
+anchor-spl = { version = "0.28.0" }
+
+# Custom patch for potential security fixes
+# borsh = { git = "https://github.com/near/borsh-rs", branch = "master" }
+
+# Environment-specific configurations
+[env]
+ANCHOR_PROVIDER_URL = { value = "https://api.devnet.solana.com", condition = { env = "devnet" } }
+ANCHOR_WALLET = { value = "~/.config/solana/id.json", condition = { any = ["devnet", "testnet", "mainnet"] } }
+
+# Cargo configuration for build optimization
+[build]
+target-dir = "target"
+rustflags = [
+    "-C", "link-arg=-z,noexecstack",
+    "-C", "link-arg=-z,relro",
+    "-C", "link-arg=-z,now",
+    "-C", "force-frame-pointers=yes"
+]
+
+# Additional metadata for package registry
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--enable-mutable-globals"]
+
+# Custom metadata for Finova-specific configurations
+[package.metadata.finova]
+program-id = "FinTokenxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+program-name = "Finova Token Program"
+network-compatibility = ["devnet", "testnet", "mainnet-beta"]
+upgrade-authority = "required"
+admin-authority = "required"
+emergency-pause = "enabled"
+
+# Token specifications
+[package.metadata.finova.tokens]
+FIN = { decimals = 9, max_supply = "100000000000000000000", symbol = "FIN" }
+sFIN = { decimals = 9, max_supply = "unlimited", symbol = "sFIN" }
+USDfin = { decimals = 6, max_supply = "unlimited", symbol = "USDfin" }
+sUSDfin = { decimals = 6, max_supply = "unlimited", symbol = "sUSDfin" }
+
+# Staking configurations
+[package.metadata.finova.staking]
+min_stake_amount = "100000000000" # 100 FIN with 9 decimals
+max_stake_duration = 31536000 # 1 year in seconds
+reward_calculation_precision = 18
+compound_frequency = "daily"
+early_withdrawal_penalty = "5%" # 5% penalty for early withdrawal
+
+# Security configurations
+[package.metadata.finova.security]
+admin_multisig_threshold = 3
+upgrade_delay = 86400 # 24 hours in seconds
+emergency_pause_authority = "admin"
+max_accounts_per_instruction = 30
+max_instruction_data_size = 1280
+rate_limiting = "enabled"
+
+# Integration configurations
+[package.metadata.finova.integrations]
+core_program = "FinCorexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+nft_program = "FinNFTxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+defi_program = "FinDeFixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+oracle_program = "FinOraclexxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Monitoring and analytics
+[package.metadata.finova.monitoring]
+events_tracking = "enabled"
+performance_metrics = "enabled"
+error_tracking = "enabled"
+audit_logging = "enabled"
+
+# Version compatibility matrix
+[package.metadata.finova.compatibility]
+solana_version = "1.16.x"
+anchor_version = "0.28.x"
+rust_version = "1.70.0"
+node_version = "18.x"
+
+# Build scripts and automation
+[[bin]]
+name = "deploy"
+path = "scripts/deploy.rs"
+required-features = ["devnet"]
+
+[[bin]]
+name = "upgrade"
+path = "scripts/upgrade.rs"
+required-features = ["mainnet"]
+
+[[bin]]
+name = "verify"
+path = "scripts/verify.rs"
+
+# Custom commands for development
+[package.metadata.finova.commands]
+build = "anchor build"
+test = "anchor test --skip-local-validator"
+deploy-devnet = "anchor deploy --provider.cluster devnet"
+deploy-testnet = "anchor deploy --provider.cluster testnet"
+deploy-mainnet = "anchor deploy --provider.cluster mainnet-beta"
+verify-build = "anchor verify --provider.cluster mainnet-beta"
+generate-idl = "anchor idl init --filepath target/idl/finova_token.json"
+update-idl = "anchor idl upgrade --filepath target/idl/finova_token.json"
+
+# Linting and formatting configurations
+[package.metadata.clippy]
+max_fn_lines = 100
+type_complexity_threshold = 250
+too_many_arguments_threshold = 8
+enum_variant_names_threshold = 3
+
+# Documentation configuration
+[package.metadata.docs]
+features = ["full"]
+default-target = "x86_64-unknown-linux-gnu"
+targets = ["wasm32-unknown-unknown"]
+rustc-args = ["--cfg", "docsrs"]
+rustdoc-args = [
+    "--cfg", "docsrs",
+    "--extern-html-root-url", "solana_program=https://docs.rs/solana-program/1.16.0/",
+    "--extern-html-root-url", "anchor_lang=https://docs.rs/anchor-lang/0.28.0/",
+    "--extern-html-root-url", "spl_token=https://docs.rs/spl-token/3.5.0/"
+]
+
+# Cache configuration for faster builds
+[package.metadata.cache]
+target-cache = "enabled"
+registry-cache = "enabled"
+git-cache = "enabled"
+incremental-compilation = "enabled"
+
+# Final verification and integrity checks
+[package.metadata.integrity]
+checksum-verification = "enabled"
+signature-verification = "required"
+audit-trail = "enabled"
+reproducible-builds = "enabled"
