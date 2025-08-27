@@ -1,0 +1,337 @@
+// programs/finova-core/Cargo.toml
+
+[package]
+name = "finova-core"
+version = "1.0.0"
+description = "Finova Network Core Smart Contract - Social-Fi Mining & Rewards System"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/finova-network/finova-contracts"
+homepage = "https://finova.network"
+documentation = "https://docs.finova.network"
+readme = "README.md"
+keywords = ["solana", "anchor", "defi", "social-fi", "mining", "web3"]
+categories = ["cryptography::cryptocurrencies", "web-programming"]
+authors = [
+    "Finova Network Team <dev@finova.network>",
+    "Core Developers <core@finova.network>"
+]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "finova_core"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+mainnet = []
+devnet = ["anchor-lang/devnet"]
+testnet = []
+debug = ["anchor-lang/debug"]
+testing = ["anchor-lang/testing"]
+
+[dependencies]
+# Anchor Framework - Core blockchain development framework
+anchor-lang = { version = "0.30.1", features = ["init-if-needed", "event-cpi"] }
+anchor-spl = { version = "0.30.1", features = ["metadata"] }
+
+# Solana Program Library
+solana-program = "~1.18.15"
+spl-token = { version = "4.0.0", features = ["no-entrypoint"] }
+spl-token-2022 = { version = "0.6.1", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "2.3.0", features = ["no-entrypoint"] }
+spl-account-compression = { version = "0.3.0", features = ["no-entrypoint"] }
+
+# Metaplex for NFT functionality
+mpl-token-metadata = { version = "4.1.2", features = ["no-entrypoint"] }
+mpl-bubblegum = { version = "1.3.2", features = ["no-entrypoint"] }
+
+# Mathematical operations and precision
+uint = { version = "0.9.5", default-features = false }
+num-traits = { version = "0.2.17", default-features = false }
+num-derive = { version = "0.4.1", default-features = false }
+rust_decimal = { version = "1.34.3", default-features = false, features = ["serde"] }
+
+# Serialization and data handling
+serde = { version = "1.0.197", default-features = false, features = ["derive"] }
+serde_json = { version = "1.0.114", default-features = false, features = ["alloc"] }
+borsh = { version = "1.3.1", default-features = false, features = ["derive"] }
+bytemuck = { version = "1.14.3", default-features = false, features = ["derive"] }
+
+# Time and date handling
+chrono = { version = "0.4.34", default-features = false, features = ["serde"] }
+
+# Cryptographic operations
+sha2 = { version = "0.10.8", default-features = false }
+sha3 = { version = "0.10.8", default-features = false }
+blake3 = { version = "1.5.0", default-features = false }
+curve25519-dalek = { version = "4.1.2", default-features = false, features = ["serde"] }
+ed25519-dalek = { version = "2.1.1", default-features = false, features = ["serde"] }
+
+# Error handling and utilities
+thiserror = "1.0.57"
+anyhow = "1.0.80"
+arrayref = "0.3.7"
+static_assertions = "1.1.0"
+
+# Logging (only for development)
+log = { version = "0.4.20", optional = true }
+env_logger = { version = "0.11.3", optional = true }
+
+# Oracle and price feed integration
+pyth-sdk-solana = { version = "0.10.1", default-features = false }
+switchboard-solana = { version = "0.29.0", default-features = false }
+
+# Cross-chain bridge support
+wormhole-anchor-sdk = { version = "0.1.4", default-features = false, optional = true }
+
+# Development and testing dependencies
+[dev-dependencies]
+# Testing framework
+tokio = { version = "1.36.0", features = ["full"] }
+solana-program-test = "~1.18.15"
+solana-sdk = "~1.18.15"
+solana-client = "~1.18.15"
+solana-account-decoder = "~1.18.15"
+solana-transaction-status = "~1.18.15"
+
+# Anchor testing utilities
+anchor-client = { version = "0.30.1", features = ["debug"] }
+
+# Property-based testing
+proptest = "1.4.0"
+quickcheck = "1.0.3"
+
+# Benchmarking
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+# Fuzzing
+arbitrary = { version = "1.3.2", features = ["derive"] }
+
+# Mock and test utilities
+mockall = "0.12.1"
+serial_test = "3.0.0"
+pretty_assertions = "1.4.0"
+
+# Time manipulation for tests
+mock_instant = "0.3.2"
+
+[build-dependencies]
+# Build script dependencies for code generation
+vergen = { version = "8.3.1", features = ["build", "cargo", "git", "rustc"] }
+
+[[bench]]
+name = "mining_calculations"
+harness = false
+required-features = ["testing"]
+
+[[bench]]
+name = "xp_calculations"
+harness = false
+required-features = ["testing"]
+
+[[bench]]
+name = "referral_network"
+harness = false
+required-features = ["testing"]
+
+[[bench]]
+name = "anti_bot_detection"
+harness = false
+required-features = ["testing"]
+
+# Optimization profiles
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.release.build-override]
+opt-level = 3
+codegen-units = 1
+
+[profile.dev]
+panic = "abort"
+overflow-checks = true
+
+[profile.test]
+overflow-checks = true
+
+# Security and audit configurations
+[package.metadata.audit]
+ignore = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# Workspace configuration for monorepo
+[workspace]
+resolver = "2"
+
+# Custom metadata for Finova Network
+[package.metadata.finova]
+program_id = "FiNoVaCorE1111111111111111111111111111111111"
+network = "mainnet"
+upgrade_authority = "FinovaUpgradeAuth1111111111111111111111111111"
+security_level = "high"
+audit_status = "pending"
+deployment_version = "1.0.0"
+
+# IDL generation configuration
+[package.metadata.anchor]
+seeds = true
+skip-lint = false
+resolution = true
+safety-checks = true
+
+# Program deployment configuration
+[package.metadata.solana]
+program-id = "FiNoVaCorE1111111111111111111111111111111111"
+program-name = "finova_core"
+
+# License and compliance
+[package.metadata.license]
+expression = "MIT"
+license-file = "LICENSE"
+copyright = "2025 Finova Network Team"
+
+# Security audit trail
+[package.metadata.security]
+audit-date = "2025-07-26"
+audit-firm = "TBD"
+bug-bounty = "https://github.com/finova-network/finova-contracts/security"
+security-contact = "security@finova.network"
+
+# Performance benchmarks metadata
+[package.metadata.performance]
+target-tps = 50000
+max-accounts = 10000000
+max-concurrent-users = 1000000
+memory-usage-limit = "256MB"
+
+# Integration testing configuration
+[package.metadata.integration]
+test-validator = true
+test-ledger = true
+genesis-programs = [
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+]
+
+# Cross-program invocation dependencies
+[package.metadata.cpi]
+programs = [
+    "finova-token",
+    "finova-nft", 
+    "finova-defi"
+]
+
+# Documentation generation
+[package.metadata.documentation]
+include-private = false
+include-examples = true
+include-benchmarks = true
+theme = "finova"
+
+# Code coverage configuration
+[package.metadata.coverage]
+exclude = [
+    "tests/*",
+    "benches/*",
+    "examples/*"
+]
+target-coverage = 95
+
+# Deployment environments
+[package.metadata.environments]
+mainnet = { cluster = "mainnet-beta", commitment = "finalized" }
+testnet = { cluster = "testnet", commitment = "confirmed" }
+devnet = { cluster = "devnet", commitment = "processed" }
+localnet = { cluster = "http://localhost:8899", commitment = "processed" }
+
+# Program buffer and upgrade configuration
+[package.metadata.deployment]
+buffer-authority = "FinovaBufferAuth111111111111111111111111111"
+upgrade-authority = "FinovaUpgradeAuth1111111111111111111111111111"
+max-program-size = "1MB"
+deployment-cost-estimate = "~5 SOL"
+
+# Monitoring and observability
+[package.metadata.monitoring]
+metrics-enabled = true
+tracing-enabled = true
+error-tracking = "sentry"
+performance-monitoring = "datadog"
+
+# Compliance and regulatory
+[package.metadata.compliance]
+kyc-required = true
+aml-checks = true
+gdpr-compliant = true
+regulatory-regions = ["US", "EU", "APAC"]
+
+# Network economics configuration
+[package.metadata.economics]
+token-symbol = "FIN"
+total-supply = "100000000000" # 100 billion tokens
+mining-phases = 4
+halving-interval = "2 years"
+max-daily-mining = "1000000" # 1 million tokens per day initially
+
+# Quality assurance metadata
+[package.metadata.qa]
+code-review-required = true
+security-review-required = true
+performance-review-required = true
+documentation-review-required = true
+minimum-test-coverage = 95
+
+# Build optimization flags
+[package.metadata.build]
+optimize-for = "size"
+target-features = "+crt-static"
+link-time-optimization = true
+debug-assertions = false
+
+# Runtime configuration
+[package.metadata.runtime]
+stack-size = "1MB"
+heap-size = "10MB"
+max-compute-units = 1400000
+max-accounts = 64
+max-instruction-data-size = "10KB"
+
+# Error handling and recovery
+[package.metadata.error-handling]
+panic-strategy = "abort"
+error-recovery = "graceful"
+retry-logic = "exponential-backoff"
+circuit-breaker = "enabled"
+
+# Integration points
+[package.metadata.integrations]
+social-platforms = ["instagram", "tiktok", "youtube", "facebook", "twitter"]
+payment-gateways = ["ovo", "gopay", "dana", "shopeepay"]
+kyc-providers = ["sumsub", "jumio", "onfido"]
+oracles = ["pyth", "switchboard", "chainlink"]
+
+# Version compatibility
+[package.metadata.compatibility]
+solana-version = "~1.18.15"
+anchor-version = "0.30.1"
+rust-version = "1.75.0"
+node-version = "18.0.0"
+
+# Final build verification
+[package.metadata.verification]
+reproducible-builds = true
+deterministic-compilation = true
+signature-verification = true
+hash-verification = true
