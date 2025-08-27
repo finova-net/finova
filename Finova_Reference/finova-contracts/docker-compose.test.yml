@@ -1,0 +1,267 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for testing
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: finova-postgres-test
+    environment:
+      POSTGRES_DB: finova_test
+      POSTGRES_USER: finova_test
+      POSTGRES_PASSWORD: test_password_123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./database/schema:/docker-entrypoint-initdb.d
+      - ./database/seeds/test:/docker-entrypoint-test.d
+    networks:
+      - finova-test
+    restart: "no"
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finova_test -d finova_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Redis for testing
+  redis-test:
+    image: redis:7-alpine
+    container_name: finova-redis-test
+    ports:
+      - "6380:6379"
+    networks:
+      - finova-test
+    restart: "no"
+    tmpfs:
+      - /data:rw,noexec,nosuid,size=256m
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Solana Test Validator for testing
+  solana-test-validator:
+    image: solanalabs/solana:v1.16.0
+    container_name: finova-solana-test
+    ports:
+      - "8898:8899"
+      - "9901:9900"
+    networks:
+      - finova-test
+    restart: "no"
+    tmpfs:
+      - /tmp/test-ledger:rw,noexec,nosuid,size=1g
+    command: >
+      sh -c "
+        solana-test-validator
+        --ledger /tmp/test-ledger
+        --bind-address 0.0.0.0
+        --rpc-bind-address 0.0.0.0
+        --rpc-port 8899
+        --faucet-port 9900
+        --enable-rpc-transaction-history
+        --reset
+        --quiet
+      "
+    healthcheck:
+      test: ["CMD", "solana", "cluster-version", "--url", "http://localhost:8899"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # API Test Runner
+  api-test:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+      target: test
+    container_name: finova-api-test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://finova_test:test_password_123@postgres-test:5432/finova_test
+      REDIS_URL: redis://redis-test:6379
+      SOLANA_RPC_URL: http://solana-test-validator:8899
+      JWT_SECRET: test_jwt_secret_key_for_testing_only
+      LOG_LEVEL: error
+    volumes:
+      - ./api:/app
+      - ./shared:/app/shared
+      - ./tests:/app/tests
+      - test_coverage:/app/coverage
+    networks:
+      - finova-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      solana-test-validator:
+        condition: service_healthy
+    restart: "no"
+    command: npm run test:integration
+
+  # AI Services Test Runner
+  ai-services-test:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.ai-services
+      target: test
+    container_name: finova-ai-services-test
+    environment:
+      ENVIRONMENT: test
+      DATABASE_URL: postgresql://finova_test:test_password_123@postgres-test:5432/finova_test
+      REDIS_URL: redis://redis-test:6379
+      LOG_LEVEL: ERROR
+    volumes:
+      - ./ai-services:/app
+      - ./shared:/app/shared
+      - ./tests:/app/tests
+      - test_coverage:/app/coverage
+    networks:
+      - finova-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    restart: "no"
+    command: python -m pytest tests/ -v --cov=src --cov-report=html:/app/coverage/ai-services
+
+  # Smart Contract Test Runner
+  smart-contracts-test:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.anchor
+      target: test
+    container_name: finova-contracts-test
+    environment:
+      ANCHOR_PROVIDER_URL: http://solana-test-validator:8899
+      ANCHOR_WALLET: /app/tests/fixtures/test-keypair.json
+    volumes:
+      - ./programs:/app/programs
+      - ./tests:/app/tests
+      - ./target:/app/target
+      - test_coverage:/app/coverage
+    networks:
+      - finova-test
+    depends_on:
+      solana-test-validator:
+        condition: service_healthy
+    restart: "no"
+    command: >
+      sh -c "
+        anchor build &&
+        anchor test --skip-local-validator --provider.cluster http://solana-test-validator:8899
+      "
+
+  # Load Testing with K6
+  load-test:
+    image: grafana/k6:latest
+    container_name: finova-load-test
+    environment:
+      API_BASE_URL: http://api-test:3000
+      MOBILE_API_URL: http://mobile-backend-test:3001
+      TEST_DURATION: 30s
+      VUS: 10
+    volumes:
+      - ./tests/load:/scripts
+      - test_results:/results
+    networks:
+      - finova-test
+    restart: "no"
+    command: run --out json=/results/load-test-results.json /scripts/api-load-test.js
+
+  # Security Testing with OWASP ZAP
+  security-test:
+    image: owasp/zap2docker-stable
+    container_name: finova-security-test
+    volumes:
+      - ./tests/security:/zap/wrk
+      - test_results:/zap/reports
+    networks:
+      - finova-test
+    restart: "no"
+    command: >
+      sh -c "
+        zap-baseline.py -t http://api-test:3000 -J /zap/reports/api-security-baseline.json &&
+        zap-api-scan.py -t http://api-test:3000/api/v1/openapi.json -J /zap/reports/api-security-detailed.json
+      "
+
+  # End-to-End Testing with Playwright
+  e2e-test:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.e2e
+    container_name: finova-e2e-test
+    environment:
+      API_URL: http://api-test:3000
+      WEB_URL: http://nginx-test:80
+      HEADLESS: true
+    volumes:
+      - ./tests/e2e:/app/tests
+      - test_results:/app/test-results
+      - test_coverage:/app/coverage
+    networks:
+      - finova-test
+    restart: "no"
+    command: npx playwright test --reporter=html
+
+  # Test Results Aggregator
+  test-aggregator:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.test-aggregator
+    container_name: finova-test-aggregator
+    volumes:
+      - test_coverage:/app/coverage
+      - test_results:/app/results
+      - ./tests/reports:/app/reports
+    networks:
+      - finova-test
+    restart: "no"
+    command: python aggregate_test_results.py
+    depends_on:
+      - api-test
+      - ai-services-test
+      - smart-contracts-test
+      - load-test
+      - security-test
+      - e2e-test
+
+  # Chaos Engineering with Chaos Monkey
+  chaos-test:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.chaos
+    container_name: finova-chaos-test
+    environment:
+      TARGET_SERVICES: "api-test,ai-services-test,mobile-backend-test"
+      CHAOS_DURATION: 60s
+      CHAOS_INTERVAL: 10s
+    volumes:
+      - ./tests/chaos:/app/experiments
+      - test_results:/app/results
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - finova-test
+    restart: "no"
+    command: python chaos_monkey.py --config /app/experiments/config.yml
+
+volumes:
+  test_coverage:
+    driver: local
+  test_results:
+    driver: local
+
+networks:
+  finova-test:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+        
