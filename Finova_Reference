@@ -106,3 +106,4 @@ RUN bandit -r src/ -f json -o /tmp/bandit-report.json || true
 RUN safety check --json --output /tmp/safety-report.json || true
 
 USER finova
+
