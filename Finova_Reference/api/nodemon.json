@@ -1,0 +1,279 @@
+{
+  "watch": [
+    "src/**/*",
+    "config/**/*",
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.staging",
+    ".env.production"
+  ],
+  "ext": "ts,js,json,env",
+  "ignore": [
+    "node_modules/**/*",
+    "dist/**/*",
+    "build/**/*",
+    "logs/**/*",
+    "coverage/**/*",
+    "tmp/**/*",
+    "uploads/**/*",
+    "cache/**/*",
+    "*.test.ts",
+    "*.spec.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "tests/**/*",
+    "__tests__/**/*",
+    "jest.config.js",
+    "*.log",
+    "*.pid",
+    ".git/**/*",
+    ".github/**/*",
+    "docs/**/*",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "exec": "ts-node --transpile-only --files src/index.ts",
+  "script": "dev",
+  "restartable": "rs",
+  "env": {
+    "NODE_ENV": "development",
+    "DEBUG": "finova:*",
+    "LOG_LEVEL": "debug",
+    "PORT": "3000",
+    "HOST": "localhost",
+    "API_VERSION": "v1",
+    "CORS_ORIGIN": "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+    "JWT_DEBUG": "true",
+    "BLOCKCHAIN_NETWORK": "devnet",
+    "REDIS_CACHE_TTL": "300",
+    "DATABASE_POOL_MIN": "2",
+    "DATABASE_POOL_MAX": "10",
+    "RATE_LIMIT_MAX": "1000",
+    "WEBSOCKET_HEARTBEAT": "30000",
+    "AI_MODEL_TIMEOUT": "10000",
+    "MINING_CALCULATION_INTERVAL": "60000",
+    "XP_SYNC_INTERVAL": "30000",
+    "RP_UPDATE_INTERVAL": "120000",
+    "ANTI_BOT_SENSITIVITY": "high",
+    "QUALITY_CHECK_ENABLED": "true",
+    "NOTIFICATION_QUEUE_ENABLED": "true",
+    "ANALYTICS_SAMPLING_RATE": "1.0",
+    "PERFORMANCE_MONITORING": "true",
+    "MEMORY_LIMIT": "512mb",
+    "CPU_PROFILING": "false"
+  },
+  "colours": true,
+  "legacyWatch": false,
+  "pollingInterval": 100,
+  "runOnChangeOnly": false,
+  "quiet": false,
+  "verbose": true,
+  "delay": 2500,
+  "signal": "SIGTERM",
+  "killSignal": "SIGKILL",
+  "events": {
+    "restart": "echo '🔄 Finova API Server Restarting...'",
+    "crash": "echo '💥 Finova API Server Crashed!'",
+    "start": "echo '🚀 Finova API Server Started Successfully!'",
+    "quit": "echo '👋 Finova API Server Shutting Down...'"
+  },
+  "nodeArgs": [
+    "--max-old-space-size=1024",
+    "--experimental-worker",
+    "--trace-warnings",
+    "--unhandled-rejections=strict",
+    "--enable-source-maps"
+  ],
+  "stdout": false,
+  "stderr": false,
+  "watchOptions": {
+    "followSymlinks": false,
+    "usePolling": false,
+    "interval": 100,
+    "binaryInterval": 300,
+    "ignoreInitial": false,
+    "persistent": true,
+    "ignorePermissionErrors": true,
+    "atomic": true,
+    "alwaysStat": false,
+    "depth": 99,
+    "awaitWriteFinish": {
+      "stabilityThreshold": 2000,
+      "pollInterval": 100
+    }
+  },
+  "inspection": {
+    "enabled": true,
+    "port": 9229,
+    "host": "localhost",
+    "break": false
+  },
+  "typescript": {
+    "transpileOnly": true,
+    "typeCheck": false,
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es2020",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+    }
+  },
+  "scripts": {
+    "prestart": "npm run lint:fix && npm run type-check",
+    "poststart": "echo 'Server ready for development'",
+    "prerestart": "echo 'Preparing to restart...'",
+    "postrestart": "echo 'Restart complete'"
+  },
+  "hooks": {
+    "beforeStart": [
+      "echo '🔧 Checking environment variables...'",
+      "node -e \"require('./src/config/index.ts').validateConfig()\""
+    ],
+    "afterStart": [
+      "echo '✅ Finova API is running on http://localhost:${PORT:-3000}'",
+      "echo '📊 Health check: http://localhost:${PORT:-3000}/api/v1/health'",
+      "echo '📝 API docs: http://localhost:${PORT:-3000}/api/v1/docs'"
+    ],
+    "beforeRestart": [
+      "echo '⚠️  Gracefully shutting down connections...'",
+      "node -e \"process.emit('SIGTERM')\""
+    ],
+    "afterRestart": [
+      "echo '🔄 Restart completed successfully'",
+      "echo '🎯 Ready for new requests'"
+    ]
+  },
+  "monitoring": {
+    "memoryUsage": {
+      "enabled": true,
+      "threshold": "256mb",
+      "action": "restart"
+    },
+    "cpuUsage": {
+      "enabled": true,
+      "threshold": 80,
+      "duration": "30s",
+      "action": "warn"
+    },
+    "responseTime": {
+      "enabled": true,
+      "threshold": "5s",
+      "action": "log"
+    }
+  },
+  "finova": {
+    "features": {
+      "miningEngine": true,
+      "xpSystem": true,
+      "rpSystem": true,
+      "nftMarketplace": true,
+      "socialIntegration": true,
+      "antiBotProtection": true,
+      "qualityAssessment": true,
+      "realtimeAnalytics": true,
+      "websocketSupport": true,
+      "kycVerification": true,
+      "stakingRewards": true,
+      "guildSystem": true,
+      "governanceVoting": true,
+      "ewalletIntegration": true,
+      "crossChainBridge": true
+    },
+    "blockchain": {
+      "network": "solana-devnet",
+      "rpcEndpoint": "https://api.devnet.solana.com",
+      "programIds": {
+        "finovaCore": "FinovaCore11111111111111111111111111111111",
+        "finovaToken": "FinovaToken1111111111111111111111111111111",
+        "finnovaNft": "FinovaNFT111111111111111111111111111111111",
+        "finovaDefi": "FinovaDeFi111111111111111111111111111111111",
+        "finnovaBridge": "FinovaBridge11111111111111111111111111111111",
+        "finovaOracle": "FinovaOracle11111111111111111111111111111111"
+      }
+    },
+    "ai": {
+      "contentAnalyzer": {
+        "endpoint": "http://localhost:8001",
+        "timeout": 10000,
+        "retries": 3
+      },
+      "botDetection": {
+        "endpoint": "http://localhost:8002",
+        "timeout": 5000,
+        "retries": 2
+      },
+      "recommendation": {
+        "endpoint": "http://localhost:8003",
+        "timeout": 15000,
+        "retries": 3
+      }
+    },
+    "socialPlatforms": {
+      "instagram": {
+        "enabled": true,
+        "apiVersion": "v17.0",
+        "webhookPath": "/webhooks/instagram"
+      },
+      "tiktok": {
+        "enabled": true,
+        "apiVersion": "v1",
+        "webhookPath": "/webhooks/tiktok"
+      },
+      "youtube": {
+        "enabled": true,
+        "apiVersion": "v3",
+        "webhookPath": "/webhooks/youtube"
+      },
+      "facebook": {
+        "enabled": true,
+        "apiVersion": "v17.0",
+        "webhookPath": "/webhooks/facebook"
+      },
+      "twitter": {
+        "enabled": true,
+        "apiVersion": "v2",
+        "webhookPath": "/webhooks/twitter"
+      }
+    },
+    "ewallets": {
+      "ovo": {
+        "enabled": true,
+        "sandbox": true,
+        "webhookPath": "/webhooks/ovo"
+      },
+      "gopay": {
+        "enabled": true,
+        "sandbox": true,
+        "webhookPath": "/webhooks/gopay"
+      },
+      "dana": {
+        "enabled": true,
+        "sandbox": true,
+        "webhookPath": "/webhooks/dana"
+      },
+      "shopeepay": {
+        "enabled": true,
+        "sandbox": true,
+        "webhookPath": "/webhooks/shopeepay"
+      }
+    },
+    "microservices": {
+      "authService": "http://localhost:3001",
+      "miningService": "http://localhost:3002",
+      "xpService": "http://localhost:3003",
+      "rpService": "http://localhost:3004",
+      "nftService": "http://localhost:3005",
+      "socialService": "http://localhost:3006",
+      "analyticsService": "http://localhost:3007",
+      "notificationService": "http://localhost:3008",
+      "kycService": "http://localhost:3009",
+      "stakingService": "http://localhost:3010"
+    }
+  }
+}
